@@ -10,6 +10,7 @@ public class Task {
     protected TaskStatus status;
 
     public Task(String title, String description) {
+        this.id=0;
         this.title = title;
         this.description = description;
         this.status = TaskStatus.NEW;
