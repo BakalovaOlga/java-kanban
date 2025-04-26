@@ -1,5 +1,6 @@
 import util.*;
 import tasks.*;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -7,7 +8,7 @@ public class Main {
 
         //создаем задачи
 
-        Task task1 = new Task( "task1", "description1");
+        Task task1 = new Task("task1", "description1");
         Task task2 = new Task(0, "task2", "description2", TaskStatus.NEW);
         taskManager.createTask(task1);
         taskManager.createTask(task2);
@@ -66,8 +67,8 @@ public class Main {
         epic2.setStatus(TaskStatus.DONE);// статус не должен обновиться
         epic2.setDescription("new description");
         taskManager.updateEpic(epic2);
-        // проверка на хранение 10 элементов
-        taskManager.getTaskById(task1.getId());//не должен быть в истории
+
+        taskManager.getTaskById(task1.getId());
         task1.setTitle("pupupu");
         taskManager.updateTask(task1);
         taskManager.getTaskById(task1.getId());
@@ -79,9 +80,16 @@ public class Main {
         taskManager.getEpicById(epic1.getId());
         taskManager.updateEpic(epic1);
         taskManager.getEpicById(epic1.getId());
+        taskManager.getEpicById(epic2.getId());
         taskManager.getEpicById(epic1.getId());
-        taskManager.getEpicById(epic1.getId());
-        taskManager.getEpicById(epic1.getId());
+        taskManager.getEpicById(epic2.getId());
+        taskManager.getSubtaskById(subtask2.getId());
+        taskManager.deleteEpicById(epic1.getId());
+        taskManager.updateEpic(epic1);
+        taskManager.getSubtaskById(subtask2.getId());//должна удалиться вместе с эпиком
+        task1.setTitle("last change");
+        taskManager.updateTask(task1);
+        taskManager.getTaskById(task1.getId());
 
         printAllTasks(taskManager);
     }
