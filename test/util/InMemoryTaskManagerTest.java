@@ -76,7 +76,7 @@ class InMemoryTaskManagerTest {
         int subtaskId = subtask.getId();
 
         taskManager.deleteSubtaskById(subtaskId);
-        
+
         assertTrue(taskManager.getEpicById(epicId).getSubtaskId().isEmpty());
     }
 }
