@@ -10,17 +10,19 @@ public class Task {
     protected TaskStatus status;
 
     public Task(String title, String description) {
-        this.id=0;
+        this.id = 0;
         this.title = title;
         this.description = description;
         this.status = TaskStatus.NEW;
     }
+
     public Task(int id, String title, String description, TaskStatus status) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.status = status;
     }
+
     public Task(int id, String title, String description) {
         this.id = id;
         this.title = title;
@@ -59,6 +61,13 @@ public class Task {
         this.status = status;
     }
 
+    public static Task copyTask(Task original) {
+        if (original == null) return null;
+        Task copyOfTask = new Task(original.getId(), original.getTitle(), original.getDescription(),
+                original.getStatus());
+
+        return copyOfTask;
+    }
 
     @Override
     public String toString() {

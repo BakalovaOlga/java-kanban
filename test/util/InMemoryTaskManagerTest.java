@@ -10,18 +10,18 @@ import tasks.TaskStatus;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
-   private TaskManager taskManager = new InMemoryTaskManager();
+    private TaskManager taskManager = new InMemoryTaskManager();
 
-  @AfterEach
-  void clear() {
-      taskManager.clearAll();
-  }
+    @AfterEach
+    void clear() {
+        taskManager.clearAll();
+    }
 
     @Test
     void createAllTypesAndGetById() {
         Task task = new Task(0, "title", "description", TaskStatus.NEW);
         taskManager.createTask(task);
-        Epic epic = new Epic( "title", "description");
+        Epic epic = new Epic("title", "description");
         taskManager.createEpic(epic);
         Subtask subtask = new Subtask(0, "title", "description", TaskStatus.NEW, epic.getId());
         taskManager.createSubtask(subtask);
@@ -48,7 +48,7 @@ class InMemoryTaskManagerTest {
     void clearAllTypes() {
         Task task = new Task(0, "title", "description", TaskStatus.NEW);
         taskManager.createTask(task);
-        Epic epic = new Epic( "title", "description");
+        Epic epic = new Epic("title", "description");
         taskManager.createEpic(epic);
         Subtask subtask = new Subtask(0, "title", "description", TaskStatus.NEW, epic.getId());
         taskManager.createSubtask(subtask);
@@ -62,5 +62,21 @@ class InMemoryTaskManagerTest {
         assertTrue(taskManager.getAllEpics().isEmpty());
         assertTrue(taskManager.getAllSubtasks().isEmpty());
 
+    }
+
+    @Test
+    void deleteSubtaskByIdShouldNotLeaveIdsInEpic() {
+        Epic epic = new Epic("Эпик", "Описание");
+        taskManager.createEpic(epic);
+        int epicId = epic.getId();
+
+        Subtask subtask = new Subtask("Подзадача", "Описание");
+        subtask.setEpicId(epicId);
+        taskManager.createSubtask(subtask);
+        int subtaskId = subtask.getId();
+
+        taskManager.deleteSubtaskById(subtaskId);
+
+        assertTrue(taskManager.getEpicById(epicId).getSubtaskId().isEmpty());
     }
 }
