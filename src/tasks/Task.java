@@ -27,6 +27,7 @@ public class Task {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.status = TaskStatus.NEW;
     }
 
     public String getTitle() {
@@ -68,6 +69,11 @@ public class Task {
 
         return copyOfTask;
     }
+
+    public TaskType getType() {
+        return TaskType.TASK;
+    }
+
 
     @Override
     public String toString() {
