@@ -19,11 +19,13 @@ public class InMemoryTaskManager implements TaskManager {
     private int generateID() {
         return ++newId;
     }
+
     protected void updateMaxId(int existingId) {
         if (existingId >= newId) {
             newId = existingId + 1;
         }
     }
+
     //Создание задач
     @Override
     public Task createTask(Task task) {
@@ -57,7 +59,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Epic createEpic(Epic epic) {
-        if (epic.getId() != 0) { 
+        if (epic.getId() != 0) {
             epics.put(epic.getId(), epic);
             updateMaxId(epic.getId());
             return epic;
@@ -220,7 +222,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearAllEpics() {
-                for (int id : epics.keySet()) {
+        for (int id : epics.keySet()) {
             historyManager.remove(id);
         }
         for (int id : subtasks.keySet()) {
