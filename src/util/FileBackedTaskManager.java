@@ -59,22 +59,22 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 if (task != null) {
                     try {
                         switch (task.getType()) {
-                            case SUBTASK:
-                                manager.createSubtask((Subtask) task);
-                                break;
                             case EPIC:
                                 manager.createEpic((Epic) task);
+                                break;
+                            case SUBTASK:
+                                manager.createSubtask((Subtask) task);
                                 break;
                             default:
                                 manager.createTask(task);
                         }
                     } catch (IllegalArgumentException e) {
-                        System.err.println("Ошибка при добавлении задачи: " + e.getMessage());
+                        throw new ManagerSaveException("Ошибка при чтении файла: " + e.getMessage());
                     }
                 }
             }
         } catch (IOException e) {
-            System.err.println("Ошибка при чтении файла: " + e.getMessage());
+            throw new ManagerSaveException("Ошибка при чтении файла: " + e.getMessage());
         }
         for (Subtask subtask : manager.getAllSubtasks()) {
             Epic epic = manager.getEpicById(subtask.getEpicId());

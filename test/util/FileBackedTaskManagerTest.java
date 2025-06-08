@@ -43,11 +43,14 @@ class FileBackedTaskManagerTest {
         manager.createTask(task);
         epic1 = new Epic("Epic 1", "Epic Description 1");
         manager.createEpic(epic1);
+        Epic epic2 = new Epic("Epic 2", "Epic Description 2");
+        manager.createEpic(epic2);
         subtask1 = new Subtask("Subtask 1", "Sub Description 1", epic1.getId());
         manager.createSubtask(subtask1);
         subtask2 = new Subtask("Subtask 2", "Sub Description 2", epic1.getId());
         manager.createSubtask(subtask2);
 
+        manager.clearAllTasks();
         // Загружаем из файла
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
 
@@ -56,8 +59,8 @@ class FileBackedTaskManagerTest {
         List<Epic> loadedEpics = loadedManager.getAllEpics();
         List<Subtask> loadedSubtasks = loadedManager.getAllSubtasks();
 
-        assertEquals(1, loadedTasks.size());
-        assertEquals(1, loadedEpics.size());
+        assertEquals(0, loadedTasks.size());
+        assertEquals(2, loadedEpics.size());
         assertEquals(2, loadedSubtasks.size());
 
         // Проверяем, что подзадачи связаны с эпиком
