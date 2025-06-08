@@ -39,10 +39,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Subtask createSubtask(Subtask subtask) {
-//        if (!epics.containsKey(subtask.getEpicId())) {
-//            throw new IllegalArgumentException("Эпик с id=" + subtask.getEpicId() + " не найден");
-//        }
-        if (subtask.getId() != 0) { // Если ID уже есть (при загрузке)
+        if (subtask.getId() != 0) {
             subtasks.put(subtask.getId(), subtask);
             updateMaxId(subtask.getId());
             return subtask;
@@ -60,7 +57,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Epic createEpic(Epic epic) {
-        if (epic.getId() != 0) { // Если ID уже есть (при загрузке)
+        if (epic.getId() != 0) { 
             epics.put(epic.getId(), epic);
             updateMaxId(epic.getId());
             return epic;
