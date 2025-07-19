@@ -16,6 +16,8 @@ public class Epic extends Task {
     }
 
 
+
+
     public ArrayList<Integer> getSubtaskId() {
         return subtaskId;
     }
@@ -29,6 +31,11 @@ public class Epic extends Task {
             return;
         }
         subtaskId.add(subId);
+    }
+
+    @Override
+    public TaskType getType() {
+        return TaskType.EPIC;
     }
 
     @Override

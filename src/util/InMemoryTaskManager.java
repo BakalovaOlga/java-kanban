@@ -13,16 +13,27 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
-    private int newId = 1;
+    private int newId = 0;
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     private int generateID() {
-        return newId++;
+        return ++newId;
+    }
+
+    protected void updateMaxId(int existingId) {
+        if (existingId >= newId) {
+            newId = existingId + 1;
+        }
     }
 
     //Создание задач
     @Override
     public Task createTask(Task task) {
+        if (task.getId() != 0) {
+            tasks.put(task.getId(), task);
+            updateMaxId(task.getId());
+            return task;
+        }
         task.setId(generateID());
         tasks.put(task.getId(), task);
         return task;
@@ -30,18 +41,29 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Subtask createSubtask(Subtask subtask) {
-
+        if (subtask.getId() != 0) {
+            subtasks.put(subtask.getId(), subtask);
+            updateMaxId(subtask.getId());
+            return subtask;
+        }
         subtask.setId(generateID());
         subtasks.put(subtask.getId(), subtask);
         //добавить подзадачу в список эпика и обновить его статус
         Epic epic = epics.get(subtask.getEpicId());
-        epic.getSubtaskId().add(subtask.getId());
-        updateEpicStatus(epic);
+        if (epic != null) {
+            epic.getSubtaskId().add(subtask.getId());
+            updateEpicStatus(epic);
+        }
         return subtask;
     }
 
     @Override
     public Epic createEpic(Epic epic) {
+        if (epic.getId() != 0) {
+            epics.put(epic.getId(), epic);
+            updateMaxId(epic.getId());
+            return epic;
+        }
         epic.setId(generateID());
         epics.put(epic.getId(), epic);
         return epic;
@@ -200,7 +222,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearAllEpics() {
-                for (int id : epics.keySet()) {
+        for (int id : epics.keySet()) {
             historyManager.remove(id);
         }
         for (int id : subtasks.keySet()) {
