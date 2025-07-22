@@ -1,6 +1,8 @@
 package util;
 
 import java.io.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import tasks.*;
@@ -21,7 +23,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
      */
     private void save() {
         try (FileWriter writer = new FileWriter(savedFile)) {
-            String header = "id,type,name,status,description,epic\n";
+            String header = "id,type,name,status,description,startTime,duration,epic\n";
             writer.write(header);
             for (Task task : getAllTasks()) {
                 writer.write(toString(task) + "\n");
@@ -100,7 +102,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 .append(task.getType()).append(",")
                 .append(task.getTitle()).append(",")
                 .append(task.getStatus()).append(",")
-                .append(task.getDescription());
+                .append(task.getDescription()).append(",")
+                .append(task.getStartTime() != null ? task.getStartTime() : "").append(",")
+                .append(task.getDuration() != null ? task.getDuration().toMinutes() : "");
 
         if (task.getType() == TaskType.SUBTASK) {
             result.append(",").append(((Subtask) task).getEpicId());
@@ -120,7 +124,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             return null;
         }
         String[] data = value.split(",");
-        if (data.length < 5) {
+        if (data.length < 7) {
             throw new IllegalArgumentException("Некорректная строка " + value);
         }
         try {
@@ -130,30 +134,28 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             TaskStatus status = TaskStatus.valueOf(data[3]);
             String description = data[4];
 
+            // Обработка времени начала и продолжительности
+            LocalDateTime startTime = data[5].isEmpty() ? null : LocalDateTime.parse(data[5]);
+            Duration duration = data[6].isEmpty() ? null : Duration.ofMinutes(Long.parseLong(data[6]));
+
             switch (type) {
                 case TASK:
-                    Task task = new Task(id, title, description);
-                    task.setStatus(status);
-                    return task;
+                    return new Task(id, title, description, status, startTime, duration);
                 case EPIC:
-                    Epic epic = new Epic(id, title, description);
-                    epic.setStatus(status);
+                    Epic epic = new Epic(id, title, description, status, startTime, duration);
                     return epic;
                 case SUBTASK:
-                    if (data.length < 6 || data[5].isEmpty()) {
+                    if (data.length < 8 || data[7].isEmpty()) {
                         throw new IllegalArgumentException("Для подзадачи не указан эпик: " + value);
                     }
-                    int epicId = Integer.parseInt(data[5]);
-                    Subtask subtask = new Subtask(id, title, description, epicId);
-                    subtask.setStatus(status);
-                    return subtask;
+                    int epicId = Integer.parseInt(data[7]);
+                    return new Subtask(id, title, description, status, epicId, startTime, duration);
                 default:
-                    throw new IllegalArgumentException("Неизвестный тип задачи" + type);
+                    throw new IllegalArgumentException("Неизвестный тип задачи: " + type);
             }
         } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("Ошибка парсинга строки: " + value, e);
         }
-
     }
 
     @Override
