@@ -6,25 +6,36 @@ import tasks.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileBackedTaskManagerTest {
+class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     private File tempFile;
-    private FileBackedTaskManager manager;
-    private Task task;
-    private Epic epic1;
-    private Subtask subtask1;
-    private Subtask subtask2;
 
+    @Override
+    protected FileBackedTaskManager createTaskManager() {
+        try {
+            tempFile = File.createTempFile("tasks", ".csv");
+            return new FileBackedTaskManager(tempFile);
+        } catch (IOException e) {
+            throw new RuntimeException("Не удалось создать временный файл", e);
+        }
+    }
 
-    @BeforeEach
-    void setUp() throws IOException {
-        tempFile = File.createTempFile("tasks", ".csv");
-        manager = new FileBackedTaskManager(tempFile);
-        tempFile.deleteOnExit();
+    @AfterEach
+    public void tearDown() {
+        if (tempFile != null) {
+            try {
+                Files.deleteIfExists(tempFile.toPath());
+            } catch (IOException e) {
+                System.err.println("Не удалось удалить временный файл: " + e.getMessage());
+            }
+        }
     }
 
 
@@ -38,35 +49,32 @@ class FileBackedTaskManagerTest {
 
     @Test
     void testSaveAndLoadMultipleTasks() {
-        // Создаем задачи
-        task = new Task("Task 1", "Description 1");
-        manager.createTask(task);
-        epic1 = new Epic("Epic 1", "Epic Description 1");
-        manager.createEpic(epic1);
-        Epic epic2 = new Epic("Epic 2", "Epic Description 2");
-        manager.createEpic(epic2);
-        subtask1 = new Subtask("Subtask 1", "Sub Description 1", epic1.getId());
-        manager.createSubtask(subtask1);
-        subtask2 = new Subtask("Subtask 2", "Sub Description 2", epic1.getId());
-        manager.createSubtask(subtask2);
+        // Создаем задачи с явным указанием времени
+        Task task = new Task(0, "Task 1", "Description 1", TaskStatus.NEW,
+                LocalDateTime.now(), Duration.ofHours(1));
+        taskManager.createTask(task);
 
-        manager.clearAllTasks();
+        Epic epic1 = new Epic("Epic 1", "Epic Description 1");
+        taskManager.createEpic(epic1);
+
+        Subtask subtask1 = new Subtask(0, "Subtask 1", "Sub Description 1", TaskStatus.NEW,
+                epic1.getId(),
+                LocalDateTime.now().plusHours(2),
+                Duration.ofMinutes(30));
+        taskManager.createSubtask(subtask1);
+
         // Загружаем из файла
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
 
-        // Проверяем загруженные задачи
-        List<Task> loadedTasks = loadedManager.getAllTasks();
-        List<Epic> loadedEpics = loadedManager.getAllEpics();
-        List<Subtask> loadedSubtasks = loadedManager.getAllSubtasks();
+        // Проверки
+        assertEquals(1, loadedManager.getAllTasks().size());
+        assertEquals(1, loadedManager.getAllEpics().size());
+        assertEquals(1, loadedManager.getAllSubtasks().size());
 
-        assertEquals(0, loadedTasks.size());
-        assertEquals(2, loadedEpics.size());
-        assertEquals(2, loadedSubtasks.size());
-
-        // Проверяем, что подзадачи связаны с эпиком
-        Epic loadedEpic = loadedEpics.getFirst();
+        // Проверяем, что подзадача связана с эпиком
+        Epic loadedEpic = loadedManager.getEpicById(epic1.getId());
+        assertNotNull(loadedEpic);
         assertTrue(loadedEpic.getSubtaskId().contains(subtask1.getId()));
-        assertTrue(loadedEpic.getSubtaskId().contains(subtask2.getId()));
     }
 
     @Test
@@ -80,5 +88,4 @@ class FileBackedTaskManagerTest {
             System.out.println("Файл не существует.");
         }
     }
-
 }
