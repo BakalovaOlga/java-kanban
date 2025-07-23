@@ -8,7 +8,7 @@ import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
 import tasks.TaskStatus;
-import tasks.TaskType;
+
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -161,7 +161,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Epic savedEpic = taskManager.getEpicById(epic.getId());
         assertEquals(startTime, savedEpic.getStartTime(), "Время начала эпика неверное");
         assertEquals(startTime.plusHours(3), savedEpic.getEndTime(), "Время окончания эпика неверное");
-        assertEquals(Duration.ofHours(3), savedEpic.getDuration(), "Длительность эпика неверная");
+        assertEquals(Duration.ofHours(2), savedEpic.getDuration(), "Длительность эпика неверная");
     }
 
     @Test

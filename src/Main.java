@@ -3,6 +3,7 @@ import tasks.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.TreeSet;
 
 public class Main {
@@ -109,7 +110,7 @@ public class Main {
         taskManager.getTaskById(task1.getId());
 
         printAllTasks(taskManager);
-        TreeSet<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
+        List<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
         System.out.println();
         System.out.println("Приоритет задач:");
         prioritizedTasks.stream()

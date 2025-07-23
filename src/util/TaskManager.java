@@ -63,7 +63,7 @@ public interface TaskManager {
 
     Epic getEpicById(int id);
 
-    TreeSet<Task> getPrioritizedTasks();
+    List<Task> getPrioritizedTasks();
 
 
 }
