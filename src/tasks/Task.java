@@ -13,6 +13,9 @@ public class Task {
     protected LocalDateTime startTime;
     protected Duration duration;
 
+    public Task() {
+    }
+
     public Task(String title, String description) {
         this.id = 0;
         this.title = title;
