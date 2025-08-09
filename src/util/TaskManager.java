@@ -34,11 +34,11 @@ public interface TaskManager {
     void updateEpicStatus(Epic epic);
 
     // Обновление задач
-    void updateTask(Task task);
+    Task updateTask(Task task);
 
-    void updateSubtask(Subtask subtask);
+    Subtask updateSubtask(Subtask subtask);
 
-    void updateEpic(Epic epic);
+    Epic updateEpic(Epic epic);
 
     //удаление задач
 
@@ -64,6 +64,7 @@ public interface TaskManager {
 
     List<Task> getPrioritizedTasks();
 
+    boolean isTasksOverlap(Task task);
 
 }
 

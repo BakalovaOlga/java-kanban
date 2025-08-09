@@ -85,6 +85,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Epic createEpic(Epic epic) {
+        if (epic.getSubtaskId() == null) {
+            epic.setSubtaskId(new ArrayList<>());
+        }
         if (epic.getId() != 0) {
             epics.put(epic.getId(), epic);
             updateMaxId(epic.getId());
@@ -193,29 +196,35 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Обновление задач
     @Override
-    public void updateTask(Task task) {
+    public Task updateTask(Task task) {
         if (isTasksOverlap(task)) {
             throw new TimeConflictException("Задача пересекается по времени с существующей");
         }
         if (task == null || !tasks.containsKey(task.getId()))
-            return;
+            return task;
         Task current = tasks.get(task.getId());
         current.setTitle(task.getTitle());
         current.setDescription(task.getDescription());
         current.setStatus(task.getStatus());
         tasks.put(task.getId(), current);
+        return task;
     }
 
     @Override
-    public void updateSubtask(Subtask subtask) {
+    public Subtask updateSubtask(Subtask subtask) {
         Subtask old = subtasks.get(subtask.getId());
         if (old != null && !old.equals(subtask)) {
             if (isTasksOverlap(subtask)) { // Проверка только если задача реально изменилась
                 throw new TimeConflictException("Подзадача пересекается по времени с существующей");
             }
         }
-        if (subtask == null || !subtasks.containsKey(subtask.getId())) {
-            return;
+
+        if (subtask == null) {
+            throw new IllegalArgumentException("Subtask cannot be null");
+        }
+
+        if (!subtasks.containsKey(subtask.getId())) {
+            throw new IllegalArgumentException("Subtask with id " + subtask.getId() + " not found");
         }
 
         Subtask current = subtasks.get(subtask.getId());
@@ -249,11 +258,25 @@ public class InMemoryTaskManager implements TaskManager {
             updateEpicStatus(epic);
             setEpicStartEndTimeAndDuration(epic);
         }
+        return current;
     }
 
     @Override
-    public void updateEpic(Epic epic) {
-        if (epic == null || !epics.containsKey(epic.getId())) return;
+    public Epic updateEpic(Epic epic) {
+        // Проверка на null должна быть первой
+        if (epic == null) {
+            throw new IllegalArgumentException("Epic cannot be null");
+        }
+
+        // Инициализация списка подзадач, если он null
+        if (epic.getSubtaskId() == null) {
+            epic.setSubtaskId(new ArrayList<>());
+        }
+
+        // Проверка существования эпика
+        if (!epics.containsKey(epic.getId())) {
+            throw new IllegalArgumentException("Epic with id " + epic.getId() + " not found");
+        }
 
         Epic current = epics.get(epic.getId());
         current.setTitle(epic.getTitle());
@@ -261,6 +284,7 @@ public class InMemoryTaskManager implements TaskManager {
         epics.put(epic.getId(), current);
 
         updateEpicStatus(current);
+        return current;
     }
 
     //удаление задач
@@ -382,12 +406,13 @@ public class InMemoryTaskManager implements TaskManager {
         return new ArrayList<>(prioritizedTasks);
     }
 
+    @Override
     public boolean isTasksOverlap(Task task) {
         if (task.getStartTime() == null || task.getEndTime() == null) {
             return false;
         }
         return prioritizedTasks.stream()
-                .filter(current -> current.getId() != task.getId())  // Вот эта `t`
+                .filter(current -> current.getId() != task.getId())
                 .anyMatch(current -> !task.getStartTime().isAfter(current.getEndTime())
                         && !current.getStartTime().isAfter(task.getEndTime()));
     }

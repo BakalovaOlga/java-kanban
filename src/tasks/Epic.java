@@ -6,8 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Epic extends Task {
-    private List<Integer> subtaskId; //список Id подзадач
+    private List<Integer> subtaskId;
     private LocalDateTime endTime;
+
+    // Конструктор по умолчанию для GSON
+    public Epic() {
+        this.subtaskId = new ArrayList<>();
+    }
 
     public Epic(int id, String title, String description, TaskStatus status,
                 LocalDateTime startTime, Duration duration) {
@@ -29,8 +34,8 @@ public class Epic extends Task {
         return subtaskId;
     }
 
-    public void setSubtaskId(ArrayList<Integer> subtaskId) {
-        this.subtaskId = subtaskId;
+    public void setSubtaskId(List<Integer> subtaskId) {
+        this.subtaskId = subtaskId != null ? subtaskId : new ArrayList<>();
     }
 
     public void addSubtask(int subId) {
