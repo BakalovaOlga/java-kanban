@@ -3,6 +3,7 @@ package server.handlers;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import util.Managers;
 import util.TaskManager;
 
 import java.io.IOException;
@@ -13,10 +14,7 @@ import java.nio.charset.StandardCharsets;
 public abstract class BaseHttpHandler implements HttpHandler {
 
     protected final TaskManager taskManager;
-    protected final Gson gson = new Gson();
-
-    @Override
-    public abstract void handle(HttpExchange exchange) throws IOException;
+    protected final Gson gson;
 
     /**
      * Создает обработчик с указанным менеджером задач.
@@ -25,7 +23,11 @@ public abstract class BaseHttpHandler implements HttpHandler {
      */
     public BaseHttpHandler(TaskManager taskManager) {
         this.taskManager = taskManager;
+        this.gson = Managers.getGson();
     }
+
+    @Override
+    public abstract void handle(HttpExchange exchange) throws IOException;
 
     /**
      * Базовый метод для отправки текстового ответа

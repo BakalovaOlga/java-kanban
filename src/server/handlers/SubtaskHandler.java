@@ -1,6 +1,5 @@
 package server.handlers;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.sun.net.httpserver.HttpExchange;
 import exceptions.TimeConflictException;
@@ -11,11 +10,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class SubtaskHandler extends BaseHttpHandler {
-    private final Gson gson;
 
-    public SubtaskHandler(TaskManager taskManager, Gson gson) {
+    public SubtaskHandler(TaskManager taskManager) {
         super(taskManager);
-        this.gson = gson;
     }
 
     @Override

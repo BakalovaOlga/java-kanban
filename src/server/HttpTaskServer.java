@@ -1,6 +1,5 @@
 package server;
 
-import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpServer;
 import util.TaskManager;
 import util.Managers;
@@ -13,14 +12,12 @@ public class HttpTaskServer {
     public static final int PORT = 8080;
     private final HttpServer server;
     private final TaskManager taskManager;
-    private final Gson gson;
 
     public HttpTaskServer(TaskManager taskManager) throws IOException {
         if (taskManager == null) {
             throw new IllegalArgumentException("TaskManager cannot be null");
         }
         this.taskManager = taskManager;
-        this.gson = Managers.getGson();
         this.server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
         this.setContext();
     }
@@ -28,15 +25,11 @@ public class HttpTaskServer {
 
     private void setContext() {
         // Создаем отдельные обработчики для каждого эндпоинта
-        server.createContext("/tasks", new TaskHandler(taskManager, gson));
-        server.createContext("/subtasks", new SubtaskHandler(taskManager, gson));
-        server.createContext("/epics", new EpicHandler(taskManager, gson));
-        server.createContext("/history", new HistoryHandler(taskManager, gson));
-        server.createContext("/prioritized", new PrioritizedHandler(taskManager, gson));
-    }
-
-    public Gson getGson() {
-        return gson;
+        server.createContext("/tasks", new TaskHandler(taskManager));
+        server.createContext("/subtasks", new SubtaskHandler(taskManager));
+        server.createContext("/epics", new EpicHandler(taskManager));
+        server.createContext("/history", new HistoryHandler(taskManager));
+        server.createContext("/prioritized", new PrioritizedHandler(taskManager));
     }
 
     public TaskManager getTaskManager() {
@@ -58,10 +51,8 @@ public class HttpTaskServer {
             TaskManager taskManager = Managers.getDefault();
             HttpTaskServer httpTaskServer = new HttpTaskServer(taskManager);
             httpTaskServer.start();
-
         } catch (IOException e) {
             System.err.println("Ошибка при запуске сервера: " + e.getMessage());
-
         }
     }
 }
